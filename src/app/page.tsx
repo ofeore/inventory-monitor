@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ProductTable } from "./components/ProductTable";
 import { AlertsList } from "./components/AlertsList";
+import Link from "next/link";
 
 type Product = {
   id: string;
@@ -89,7 +90,13 @@ export default function Home() {
       >
         {theme === "light" ? "🌙 Dark" : "☀️ Light"}
       </button>
-      <h1 className="h1">Inventory Monitor (MVP)</h1>
+      <div className="title-container">
+        <h1 className="h1">Inventory Monitor (MVP)</h1>
+        <Link className="connect-store-link" href="/connect">
+          <p>Connect Store</p>
+        </Link>
+      </div>
+
       <p className="subtext">
         Mock products + thresholds. Button calls the backend API.
       </p>

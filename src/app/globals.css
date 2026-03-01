@@ -18,14 +18,13 @@
   --buttonText: #0b1220;
 }
 
-/* Apply theme to page */
 html,
 body {
   background: var(--bg);
   color: var(--text);
+  margin: 0;
 }
 
-/* Update your existing classes to use variables */
 .subtext {
   color: var(--muted);
 }
@@ -50,7 +49,6 @@ body {
   color: var(--buttonText);
 }
 
-/* Toggle button in corner */
 .themeToggle {
   position: fixed;
   top: 16px;
@@ -76,10 +74,19 @@ body {
     sans-serif;
 }
 
+.title-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10%;
+}
 .h1 {
   font-size: 28px;
   font-weight: 700;
   margin: 0;
+  min-width: 220px;
 }
 
 .subtext {
@@ -176,4 +183,20 @@ body {
   font-size: 14px;
   color: var(--muted);
   padding-left: 5px;
+}
+
+.connect-store-link {
+  justify-content: flex-start;
+  border: 1px solid black;
+  background-color: rgb(59, 135, 228);
+  color: white;
+  padding: 2.5px 5px 5px 5px;
+  border-radius: 15px;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  text-decoration: none;
+}
+
+.connect-store-link:hover {
+  background-color: rgb(38, 122, 225);
+  opacity: 0.85;
 }
