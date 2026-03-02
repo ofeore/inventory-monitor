@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { ProductTable } from "./components/ProductTable";
 import { AlertsList } from "./components/AlertsList";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ConnectedBanner } from "./components/ConnectedBanner";
 
 type Product = {
   id: string;
@@ -97,11 +98,9 @@ export default function Home() {
       </button>
 
       <div className="headerRow">
-        {connected === "1" && shop && (
-          <div className="connectionBanner">
-            ✅ Connected to <strong>{shop}</strong>
-          </div>
-        )}
+        <Suspense fallback="null">
+          <ConnectedBanner />
+        </Suspense>
         <h1 className="pageTitle">Inventory Monitor (MVP)</h1>
 
         <Link className="primaryButton" href="/connect">
