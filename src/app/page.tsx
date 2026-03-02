@@ -103,12 +103,12 @@ export default function Home() {
       </button>
 
       <div className="headerRow">
+        <h1 className="pageTitle">Inventory Monitor (MVP)</h1>
         {connectedShop && (
           <div className="connectionBanner">
             Connected to: <strong>{connectedShop}</strong>
           </div>
         )}
-        <h1 className="pageTitle">Inventory Monitor (MVP)</h1>
 
         <Link className="primaryButton" href="/connect">
           Connect Store

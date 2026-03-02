@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Inventory Monitor (MVP)
 
-## Getting Started
+A lightweight Shopify inventory monitoring tool built with Next.js (App Router) and TypeScript.
 
-First, run the development server:
+This project demonstrates:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Shopify OAuth integration (Admin API)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Secure token exchange on the backend
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Storing access tokens in Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Basic inventory threshold monitoring UI
 
-## Learn More
+- Deployment to Netlify
 
-To learn more about Next.js, take a look at the following resources:
+## Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Next.js (App Router)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- TypeScript
 
-## Deploy on Vercel
+- Supabase (Postgres + server-side storage)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Shopify Admin API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Netlify deployment
+
+## Features
+
+- Connect a Shopify store via OAuth
+
+- Securely exchange authorization code for an Admin API access token
+
+- Store access tokens server-side in Supabase
+
+- Mock product inventory dashboard
+
+- Threshold-based stock alerts
+
+- Dark / Light mode toggle
+
+## How It Works
+
+1. OAuth Flow
+
+User enters their Shopify store domain.
+
+/api/shopify/install redirects to Shopify’s OAuth authorization screen.
+
+After approval, Shopify redirects to /api/shopify/callback.
+
+The callback route:
+
+Exchanges the authorization code for an access_token
+
+Stores { shop, access_token } in Supabase
+
+Redirects back to the dashboard with a connection banner
+
+This uses Shopify’s Authorization Code Grant Flow.
+
+2. Backend Architecture
+
+Built using Next.js App Router:
+
+app/api/shopify/install → Starts OAuth
+
+app/api/shopify/callback → Exchanges token + stores in DB
+
+Supabase → Stores connected shop tokens securely
+
+Environment variables managed via Netlify
+
+All sensitive logic runs server-side in API routes.
+
+## Environment Variables
+
+Required environment variables:
+
+SHOPIFY_API_KEY
+SHOPIFY_API_SECRET
+APP_URL
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY
+
+These are configured in Netlify.
+
+## Current MVP Scope
+
+This version focuses on:
+
+- Working OAuth flow
+
+- Secure backend token exchange
+
+- Basic inventory UI with thresholds
+
+- Foundation for polling Shopify inventory
+
+## Future Improvements
+
+**Planned enhancements:**
+
+- Fetch real product inventory from Shopify API
+
+- Poll inventory periodically
+
+- Email notifications when stock falls below threshold
+
+- Observability / logging layer
+
+## Purpose of Project
+
+This project was built to:
+
+Practice full-stack integration with a real-world API
+
+Demonstrate understanding of OAuth flows
+
+Deploy a Next.js application
