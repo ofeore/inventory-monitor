@@ -82,11 +82,11 @@ All sensitive logic runs server-side in API routes.
 
 Required environment variables:
 
-SHOPIFY_API_KEY
-SHOPIFY_API_SECRET
-APP_URL
-SUPABASE_URL
-SUPABASE_SERVICE_ROLE_KEY
+- SHOPIFY_API_KEY
+- SHOPIFY_API_SECRET
+- APP_URL
+- SUPABASE_URL
+- SUPABASE_SERVICE_ROLE_KEY
 
 These are configured in Netlify.
 
