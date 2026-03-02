@@ -18,7 +18,7 @@ export default function Connect() {
         <input
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          placeholder="Type in your shop domain"
+          placeholder="Paste the URL of your shop here without https://"
         ></input>
         <button type="submit">Connect</button>
       </form>
