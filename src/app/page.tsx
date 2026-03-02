@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { ProductTable } from "./components/ProductTable";
 import { AlertsList } from "./components/AlertsList";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 type Product = {
@@ -26,10 +25,6 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 export default function Home() {
-  const searchParams = useSearchParams();
-  const connected = searchParams.get("connected");
-  const shop = searchParams.get("shop");
-
   const [thresholds, setThresholds] = useState<Record<string, number>>({
     p1: 5,
     p2: 5,
