@@ -115,9 +115,7 @@ export default function Home() {
         </Link>
       </div>
 
-      <p className="pageSubtitle">
-        Mock products + thresholds. Button calls the backend API.
-      </p>
+      <p className="pageSubtitle"></p>
 
       <section className="card">
         <h2 className="cardTitle">Products</h2>
