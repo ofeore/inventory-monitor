@@ -26,6 +26,10 @@ This project demonstrates:
 
 - Netlify deployment
 
+### Home page
+
+![Homepage](./assets/Homepage.png)
+
 ## Features
 
 - Connect a Shopify store via OAuth
