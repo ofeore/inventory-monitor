@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { ProductTable } from "./components/ProductTable";
 import { AlertsList } from "./components/AlertsList";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ConnectedBanner } from "./components/ConnectedBanner";
 
 type Product = {
   id: string;
@@ -40,8 +39,19 @@ export default function Home() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [connectedShop, setConnectedShop] = useState<string | null>(null);
 
   const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("connected");
+    const shop = params.get("shop");
+
+    if (connected === "1" && shop) {
+      setConnectedShop(shop);
+    }
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -98,9 +108,11 @@ export default function Home() {
       </button>
 
       <div className="headerRow">
-        <Suspense fallback="null">
-          <ConnectedBanner />
-        </Suspense>
+        {connectedShop && (
+          <div className="connectionBanner">
+            Connected to: <strong>{connectedShop}</strong>
+          </div>
+        )}
         <h1 className="pageTitle">Inventory Monitor (MVP)</h1>
 
         <Link className="primaryButton" href="/connect">
