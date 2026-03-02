@@ -1,70 +1,47 @@
 :root {
-  --bg: #ffffff;
+  --background: #ffffff;
   --text: #0f172a;
-  --muted: #475569;
-  --border: #cbd5e1;
-  --borderLight: #e2e8f0;
-  --buttonBg: #0f172a;
-  --buttonText: #000000;
+  --mutedText: #475569;
+
+  --cardBackground: #ffffff;
+  --border: #e2e8f0;
+
+  --primary: #2563eb;
+  --primaryHover: #1d4ed8;
+  --primaryText: #ffffff;
+
+  --dangerText: #b91c1c;
+  --successText: #15803d;
+
+  --inputBackground: #ffffff;
+  --inputBorder: #cbd5e1;
 }
 
 :root[data-theme="dark"] {
-  --bg: #0b1220;
+  --background: #0b1220;
   --text: #e5e7eb;
-  --muted: #bcd3ef;
-  --border: #49586d;
-  --borderLight: #1f2937;
-  --buttonBg: #e5e7eb;
-  --buttonText: #0b1220;
+  --mutedText: #b6c2d1;
+
+  --cardBackground: #0f172a;
+  --border: #243244;
+
+  --primary: #60a5fa;
+  --primaryHover: #3b82f6;
+  --primaryText: #0b1220;
+
+  --dangerText: #fca5a5;
+  --successText: #86efac;
+
+  --inputBackground: #0b1220;
+  --inputBorder: #334155;
 }
 
 html,
 body {
-  background: var(--bg);
-  color: var(--text);
   margin: 0;
-}
-
-.subtext {
-  color: var(--muted);
-}
-
-.th {
-  border-bottom: 1px solid var(--border);
-}
-
-.td {
-  border-bottom: 1px solid var(--borderLight);
-}
-
-.input {
-  border: 1px solid var(--border);
-  background: var(--bg);
+  padding: 0;
+  background: var(--background);
   color: var(--text);
-}
-
-.button {
-  border: 1px solid var(--border);
-  background: var(--buttonBg);
-  color: var(--buttonText);
-}
-
-.themeToggle {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  border: 1px solid var(--border);
-  background: var(--buttonBg);
-  color: var(--buttonText);
-  padding: 8px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 14px;
-}
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 32px;
   font-family:
     system-ui,
     -apple-system,
@@ -74,129 +51,167 @@ body {
     sans-serif;
 }
 
-.title-container {
+.appContainer {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 28px 18px 60px;
+}
+
+.headerRow {
   display: flex;
-  flex-direction: row;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 10%;
 }
-.h1 {
+
+.pageTitle {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 750;
   margin: 0;
-  min-width: 220px;
+  letter-spacing: -0.3px;
 }
 
-.subtext {
-  margin-top: 8px;
-  color: #444;
+.pageSubtitle {
+  margin: 8px 0 0;
+  color: var(--mutedText);
+  line-height: 1.4;
 }
 
-.section {
-  margin-top: 24px;
+.card {
+  margin-top: 20px;
+  background: var(--cardBackground);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
 }
 
-.h2 {
-  font-size: 18px;
-  font-weight: 650;
-  margin: 0 0 10px 0;
+.cardTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 
-.th {
-  text-align: left;
-  border-bottom: 1px solid #ccc;
-  padding: 10px 8px;
-}
-
-.td {
-  border-bottom: 1px solid #eee;
-  padding: 10px 8px;
-}
-
-.input {
-  width: 90px;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.badgeLow {
-  color: #a40000;
-  font-weight: 600;
-}
-
-.badgeOk {
-  color: #1a7f37;
-  font-weight: 600;
-}
-
-.button {
   margin-top: 14px;
   padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #222;
-  background: white;
+
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--primary);
+  color: var(--primaryText);
+
+  font-weight: 650;
   cursor: pointer;
 }
 
-.button:disabled {
-  opacity: 0.6;
+.primaryButton:hover {
+  background: var(--primaryHover);
+}
+
+.primaryButton:disabled {
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
-.error {
-  margin-top: 10px;
-  color: crimson;
+.numberInput {
+  width: 92px;
+  padding: 8px 10px;
+  border: 1px solid var(--inputBorder);
+  border-radius: 10px;
+  background: var(--inputBackground);
+  color: var(--text);
 }
-/* Loading styling  */
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.tableHeaderCell {
+  text-align: left;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--mutedText);
+  font-weight: 700;
+}
+
+.tableBodyCell {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.statusLow {
+  color: var(--dangerText);
+  font-weight: 750;
+}
+
+.statusOk {
+  color: var(--successText);
+  font-weight: 750;
+}
+
+.errorText {
+  margin-top: 10px;
+  color: var(--dangerText);
+  font-weight: 650;
+}
 
 .loader {
   width: 10px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: #000;
-  box-shadow: 0 0 0 0 #0004;
-  animation: l1 1s infinite;
+  background: var(--text);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2);
+  animation: pulse 1s infinite;
 }
-@keyframes l1 {
+
+@keyframes pulse {
   100% {
-    box-shadow: 0 0 0 15px #0000;
+    box-shadow: 0 0 0 14px rgba(0, 0, 0, 0);
   }
 }
 
-.loader-wrapper {
+.loaderRow {
   margin-top: 14px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.computing-text {
+.loaderText {
   font-size: 14px;
-  color: var(--muted);
-  padding-left: 5px;
+  color: var(--mutedText);
 }
 
-.connect-store-link {
-  justify-content: flex-start;
-  border: 1px solid black;
-  background-color: rgb(59, 135, 228);
-  color: white;
-  padding: 2.5px 5px 5px 5px;
-  border-radius: 15px;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-  text-decoration: none;
+.themeToggleButton {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.connect-store-link:hover {
-  background-color: rgb(38, 122, 225);
-  opacity: 0.85;
+.connectionBanner {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+
+  color: var(--successText);
+  font-weight: 650;
 }

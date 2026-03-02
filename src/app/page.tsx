@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ProductTable } from "./components/ProductTable";
 import { AlertsList } from "./components/AlertsList";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 type Product = {
@@ -25,6 +26,10 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 export default function Home() {
+  const searchParams = useSearchParams();
+  const connected = searchParams.get("connected");
+  const shop = searchParams.get("shop");
+
   const [thresholds, setThresholds] = useState<Record<string, number>>({
     p1: 5,
     p2: 5,
@@ -83,26 +88,34 @@ export default function Home() {
   }
 
   return (
-    <main className="container">
+    <main className="appContainer">
       <button
-        className="themeToggle"
+        className="themeToggleButton"
         onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       >
         {theme === "light" ? "🌙 Dark" : "☀️ Light"}
       </button>
-      <div className="title-container">
-        <h1 className="h1">Inventory Monitor (MVP)</h1>
-        <Link className="connect-store-link" href="/connect">
-          <p>Connect Store</p>
+
+      <div className="headerRow">
+        {connected === "1" && shop && (
+          <div className="connectionBanner">
+            ✅ Connected to <strong>{shop}</strong>
+          </div>
+        )}
+        <h1 className="pageTitle">Inventory Monitor (MVP)</h1>
+
+        <Link className="primaryButton" href="/connect">
+          Connect Store
         </Link>
       </div>
 
-      <p className="subtext">
+      <p className="pageSubtitle">
         Mock products + thresholds. Button calls the backend API.
       </p>
 
-      <section className="section">
-        <h2 className="h2">Products</h2>
+      <section className="card">
+        <h2 className="cardTitle">Products</h2>
+
         <ProductTable
           products={MOCK_PRODUCTS}
           thresholds={thresholds}
@@ -110,21 +123,21 @@ export default function Home() {
         />
 
         {loading ? (
-          <div className="loader-wrapper">
+          <div className="loaderRow">
             <div className="loader" />
-            <p className="computing-text">Analysing inventory...</p>
+            <p className="loaderText">Analysing inventory...</p>
           </div>
         ) : (
-          <button className="button" onClick={runCheck}>
+          <button className="primaryButton" onClick={runCheck}>
             Run Inventory Check
           </button>
         )}
 
-        {error && <p className="error">Error: {error}</p>}
+        {error && <p className="errorText">Error: {error}</p>}
       </section>
 
-      <section className="section">
-        <h2 className="h2">Alerts (from backend)</h2>
+      <section className="card">
+        <h2 className="cardTitle">Alerts (from backend)</h2>
         <AlertsList alerts={alerts} />
       </section>
     </main>
