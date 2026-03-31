@@ -26,6 +26,10 @@ This project demonstrates:
 
 - Netlify deployment
 
+- Charting software: Recharts
+
+- Tailwind CSS
+
 ### Home page
 
 ![Homepage](./assets/Homepage.png)
