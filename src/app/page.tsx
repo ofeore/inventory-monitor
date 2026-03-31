@@ -113,6 +113,10 @@ export default function Home() {
         <Link className="primaryButton" href="/connect">
           Connect Store
         </Link>
+
+        <Link className="primaryButton" href="/analytics">
+          View Analytics
+        </Link>
       </div>
 
       <p className="pageSubtitle"></p>
