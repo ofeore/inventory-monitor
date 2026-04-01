@@ -1,28 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ProductTable } from "./components/ProductTable";
 import { AlertsList } from "./components/AlertsList";
 import Link from "next/link";
-
-type Product = {
-  id: string;
-  name: string;
-  stock: number;
-};
-
-type Alert = {
-  productId: string;
-  name: string;
-  stock: number;
-  threshold: number;
-};
-
-const MOCK_PRODUCTS: Product[] = [
-  { id: "p1", name: "Blue Hoodie - M", stock: 3 },
-  { id: "p2", name: "Blue Hoodie - L", stock: 10 },
-  { id: "p3", name: "Red T-Shirt - S", stock: 1 },
-];
+import { MOCK_PRODUCTS, THRESHOLDS_STORAGE_KEY } from "@/mock-data";
+import type { Alert } from "@/types";
+import { Bell, Boxes, ChartColumn, Store, ShieldAlert } from "lucide-react";
 
 export default function Home() {
   const [thresholds, setThresholds] = useState<Record<string, number>>({
@@ -35,7 +19,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [connectedShop, setConnectedShop] = useState<string | null>(null);
-
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
@@ -49,6 +32,26 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const savedThresholds = window.localStorage.getItem(THRESHOLDS_STORAGE_KEY);
+
+    if (!savedThresholds) return;
+
+    try {
+      const parsedThresholds = JSON.parse(savedThresholds) as Record<
+        string,
+        number
+      >;
+
+      setThresholds((prev) => ({
+        ...prev,
+        ...parsedThresholds,
+      }));
+    } catch {
+      console.error("Failed to parse saved thresholds");
+    }
+  }, []);
+
+  useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
 
@@ -56,10 +59,19 @@ export default function Home() {
     const numberValue = Number(value);
     if (Number.isNaN(numberValue)) return;
 
-    setThresholds((prev) => ({
-      ...prev,
-      [productId]: numberValue,
-    }));
+    setThresholds((prev) => {
+      const updatedThresholds = {
+        ...prev,
+        [productId]: numberValue,
+      };
+
+      window.localStorage.setItem(
+        THRESHOLDS_STORAGE_KEY,
+        JSON.stringify(updatedThresholds),
+      );
+
+      return updatedThresholds;
+    });
   }
 
   function sleep(ms: number) {
@@ -73,12 +85,13 @@ export default function Home() {
 
     try {
       await sleep(3000);
+
       const response = await fetch("/api/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           products: MOCK_PRODUCTS,
-          thresholds: thresholds,
+          thresholds,
         }),
       });
 
@@ -93,60 +106,146 @@ export default function Home() {
     }
   }
 
+  const lowStockCount = useMemo(() => {
+    return MOCK_PRODUCTS.filter((product) => {
+      const threshold = thresholds[product.id] ?? product.threshold;
+      return product.currentStock < threshold;
+    }).length;
+  }, [thresholds]);
+
+  const connectedStatus = connectedShop ? "Connected" : "Not connected";
+
   return (
-    <main className="appContainer">
-      <button
-        className="themeToggleButton"
-        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      >
-        {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-      </button>
-
-      <div className="headerRow">
-        <h1 className="pageTitle">Inventory Monitor (MVP)</h1>
-        {connectedShop && (
-          <div className="connectionBanner">
-            Connected to: <strong>{connectedShop}</strong>
-          </div>
-        )}
-
-        <Link className="primaryButton" href="/connect">
-          Connect Store
-        </Link>
-
-        <Link className="primaryButton" href="/analytics">
-          View Analytics
-        </Link>
+    <main className="app-container">
+      <div className="home-topbar">
+        <button
+          className="themeToggleButton"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        >
+          {theme === "light" ? "Dark Mode" : "Light Mode"}
+        </button>
       </div>
 
-      <p className="pageSubtitle"></p>
+      <section className="home-hero card">
+        <div className="home-hero-copy">
+          <span className="home-header">Inventory Monitor</span>
+          <h1 className="home-title">Inventory health dashboard</h1>
+          <p className="home-description">
+            Set product thresholds, run an inventory check, and see analytics to
+            understand projected stock risk and reorder timing.
+          </p>
 
-      <section className="card">
-        <h2 className="cardTitle">Products</h2>
+          <div className="home-hero-actions">
+            <Link className="primaryButton" href="/connect">
+              <Store size={16} />
+              Connect Store
+            </Link>
 
-        <ProductTable
-          products={MOCK_PRODUCTS}
-          thresholds={thresholds}
-          onThresholdChange={handleThresholdChange}
-        />
-
-        {loading ? (
-          <div className="loaderRow">
-            <div className="loader" />
-            <p className="loaderText">Analysing inventory...</p>
+            <Link className="secondaryButton" href="/analytics">
+              <ChartColumn size={16} />
+              View Analytics
+            </Link>
           </div>
-        ) : (
-          <button className="primaryButton" onClick={runCheck}>
-            Run Inventory Check
-          </button>
-        )}
+        </div>
 
-        {error && <p className="errorText">Error: {error}</p>}
+        <div className="home-hero-status">
+          <div className="home-status-card">
+            <span className="home-status-label">Store status</span>
+            <strong>{connectedStatus}</strong>
+            <p>{connectedShop ? connectedShop : "No store connected yet"}</p>
+          </div>
+
+          <div className="home-status-card">
+            <span className="home-status-label">Active alerts</span>
+            <strong>{alerts.length}</strong>
+            <p>
+              {alerts.length === 0
+                ? "No backend alerts after latest check"
+                : "Products currently flagged by backend"}
+            </p>
+          </div>
+        </div>
       </section>
 
-      <section className="card">
-        <h2 className="cardTitle">Alerts (from backend)</h2>
-        <AlertsList alerts={alerts} />
+      {connectedShop && (
+        <div className="connectionBanner">
+          Connected to: <strong>{connectedShop}</strong>
+        </div>
+      )}
+
+      <section className="home-summary-grid">
+        <div className="analytics-stat-card">
+          <div className="analytics-stat-top">
+            <Boxes size={18} className="analytics-stat-icon" />
+            <span className="analytics-stat-label">Tracked products</span>
+          </div>
+          <h3 className="analytics-stat-value">{MOCK_PRODUCTS.length}</h3>
+          <p className="analytics-stat-text">
+            Products currently listed in your shop.
+          </p>
+        </div>
+
+        <div className="analytics-stat-card">
+          <div className="analytics-stat-top">
+            <ShieldAlert size={18} className="analytics-stat-icon" />
+            <span className="analytics-stat-label">Below threshold</span>
+          </div>
+          <h3 className="analytics-stat-value">{lowStockCount}</h3>
+          <p className="analytics-stat-text">
+            Products currently below the threshold.
+          </p>
+        </div>
+      </section>
+
+      <section className="card home-section-card">
+        <div className="home-section-header">
+          <div>
+            <h2 className="cardTitle">Products</h2>
+            <p className="home-section-subtitle">
+              Adjust the threshold floor for each product to control alerting
+              and analytics behaviour.
+            </p>
+          </div>
+        </div>
+
+        <div className="home-table-shell">
+          <ProductTable
+            products={MOCK_PRODUCTS}
+            thresholds={thresholds}
+            onThresholdChange={handleThresholdChange}
+          />
+        </div>
+
+        <div className="home-action-row">
+          {loading ? (
+            <div className="loaderRow">
+              <div className="loader" />
+              <p className="loaderText">Analysing inventory...</p>
+            </div>
+          ) : (
+            <button className="primaryButton" onClick={runCheck}>
+              Run Inventory Check
+            </button>
+          )}
+
+          {error && <p className="errorText">Error: {error}</p>}
+        </div>
+      </section>
+
+      <section className="card home-section-card">
+        <div className="home-section-header">
+          <div>
+            <h2 className="cardTitle">Alerts</h2>
+            <p className="home-section-subtitle">
+              Backend check results based on the latest thresholds and product
+              stock levels.
+            </p>
+          </div>
+        </div>
+
+        <div className="home-alerts-shell">
+          <AlertsList alerts={alerts} />
+        </div>
       </section>
     </main>
   );

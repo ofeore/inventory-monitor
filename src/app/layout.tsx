@@ -1,4 +1,5 @@
 import "./globals.css";
+import { ThemeProvider } from "./context/ThemeContext";
 import type { ReactNode } from "react";
 
 export const metadata = {
@@ -6,10 +7,16 @@ export const metadata = {
   description: "Inventory monitoring dashboard built with Next.js",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }
