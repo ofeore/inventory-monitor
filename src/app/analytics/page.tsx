@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CartesianGrid,
@@ -14,12 +14,56 @@ import {
   YAxis,
 } from "recharts";
 import { ArrowLeft, AlertTriangle, Package, PoundSterling } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/mock-data";
+import { MOCK_PRODUCTS, THRESHOLDS_STORAGE_KEY } from "@/mock-data";
 import type { AnalyticsFilterValue, ChartDataPoint, Product } from "@/types";
+
+type InventoryState = "healthy" | "warning" | "critical";
 
 function getAverageDailySales(product: Product) {
   const total = product.sales.reduce((sum, item) => sum + item.unitsSold, 0);
   return total / product.sales.length;
+}
+
+function getProjectedDailySales(product: Product, days = 7) {
+  const averageDailySales = getAverageDailySales(product);
+
+  return Array.from({ length: days }, (_, index) => {
+    const variationPattern = [0.92, 1, 0.97, 1.05, 0.95, 1.08, 0.98];
+    const multiplier = variationPattern[index % variationPattern.length];
+
+    return Math.max(0, Math.round(averageDailySales * multiplier));
+  });
+}
+
+function getProjectedStocks(product: Product, days = 7) {
+  const projectedSales = getProjectedDailySales(product, days);
+  const projectedStocks: number[] = [];
+
+  let runningStock = product.currentStock;
+
+  projectedSales.forEach((unitsSold) => {
+    runningStock = Math.max(0, runningStock - unitsSold);
+    projectedStocks.push(runningStock);
+  });
+
+  return projectedStocks;
+}
+
+function getInventoryState(product: Product): InventoryState {
+  const projectedStocks = getProjectedStocks(product);
+  const firstThresholdBreachDay = projectedStocks.findIndex(
+    (stock) => stock <= product.threshold,
+  );
+
+  if (product.currentStock <= product.threshold) {
+    return "critical";
+  }
+
+  if (firstThresholdBreachDay !== -1) {
+    return "warning";
+  }
+
+  return "healthy";
 }
 
 function getTopSeller(products: Product[]) {
@@ -50,29 +94,31 @@ function getSelectedProduct(
 }
 
 function getDaysUntilThreshold(product: Product) {
-  const averageDailySales = getAverageDailySales(product);
-
-  if (averageDailySales <= 0) {
-    return Infinity;
-  }
-
-  const stockBeforeThreshold = product.currentStock - product.threshold;
-
-  if (stockBeforeThreshold <= 0) {
+  if (product.currentStock <= product.threshold) {
     return 0;
   }
 
-  return Math.floor(stockBeforeThreshold / averageDailySales);
-}
+  const projectedStocks = getProjectedStocks(product);
+  const firstThresholdBreachDay = projectedStocks.findIndex(
+    (stock) => stock <= product.threshold,
+  );
 
-function getDaysUntilStockout(product: Product) {
-  const averageDailySales = getAverageDailySales(product);
-
-  if (averageDailySales <= 0) {
+  if (firstThresholdBreachDay === -1) {
     return Infinity;
   }
 
-  return Math.floor(product.currentStock / averageDailySales);
+  return firstThresholdBreachDay + 1;
+}
+
+function getDaysUntilStockout(product: Product) {
+  const projectedStocks = getProjectedStocks(product);
+  const firstStockoutDay = projectedStocks.findIndex((stock) => stock <= 0);
+
+  if (firstStockoutDay === -1) {
+    return "7+";
+  }
+
+  return firstStockoutDay + 1;
 }
 
 function getExpectedRevenueLoss(product: Product) {
@@ -116,43 +162,90 @@ function getReorderMessage(product: Product) {
 }
 
 function buildChartData(product: Product): ChartDataPoint[] {
-  const averageDailySales = Number(getAverageDailySales(product).toFixed(1));
+  const totalHistoricalSales = product.sales.reduce(
+    (sum, item) => sum + item.unitsSold,
+    0,
+  );
 
-  const history: ChartDataPoint[] = product.sales.map((item) => ({
-    date: item.date,
-    actualSales: item.unitsSold,
-    projectedSales: null,
-  }));
+  let runningHistoricalStock = product.currentStock + totalHistoricalSales;
 
-  const lastHistoryPoint = history[history.length - 1];
+  const history: ChartDataPoint[] = product.sales.map((item) => {
+    runningHistoricalStock = Math.max(
+      0,
+      runningHistoricalStock - item.unitsSold,
+    );
+
+    return {
+      date: item.date,
+      actualStock: runningHistoricalStock,
+      projectedStock: null,
+    };
+  });
+
+  const projectedSales = getProjectedDailySales(product, 7);
+  let runningProjectedStock = product.currentStock;
+
+  const projection: ChartDataPoint[] = projectedSales.map(
+    (unitsSold, index) => {
+      runningProjectedStock = Math.max(0, runningProjectedStock - unitsSold);
+
+      return {
+        date: `Apr ${index + 1}`,
+        actualStock: null,
+        projectedStock: runningProjectedStock,
+      };
+    },
+  );
+
+  const lastHistoricalPoint = history[history.length - 1];
 
   const bridgePoint: ChartDataPoint = {
-    date: lastHistoryPoint.date,
-    actualSales: lastHistoryPoint.actualSales,
-    projectedSales: lastHistoryPoint.actualSales,
+    date: lastHistoricalPoint.date,
+    actualStock: lastHistoricalPoint.actualStock,
+    projectedStock: product.currentStock,
   };
-
-  const projection: ChartDataPoint[] = Array.from(
-    { length: 7 },
-    (_, index) => ({
-      date: `Apr ${index + 1}`,
-      actualSales: null,
-      projectedSales: averageDailySales,
-    }),
-  );
 
   return [...history.slice(0, -1), bridgePoint, ...projection];
 }
 
 export default function AnalyticsPage() {
   const router = useRouter();
+  const [thresholdOverrides, setThresholdOverrides] = useState<
+    Record<string, number>
+  >({});
+
+  const products = useMemo(
+    () =>
+      MOCK_PRODUCTS.map((product) => ({
+        ...product,
+        threshold: thresholdOverrides[product.id] ?? product.threshold,
+      })),
+    [thresholdOverrides],
+  );
+
   const [selectedFilter, setSelectedFilter] = useState<AnalyticsFilterValue>(
     MOCK_PRODUCTS[0].id,
   );
 
+  useEffect(() => {
+    const savedThresholds = window.localStorage.getItem(THRESHOLDS_STORAGE_KEY);
+
+    if (!savedThresholds) return;
+
+    try {
+      const parsedThresholds = JSON.parse(savedThresholds) as Record<
+        string,
+        number
+      >;
+      setThresholdOverrides(parsedThresholds);
+    } catch {
+      console.error("Failed to parse saved thresholds");
+    }
+  }, []);
+
   const selectedProduct = useMemo(
-    () => getSelectedProduct(MOCK_PRODUCTS, selectedFilter),
-    [selectedFilter],
+    () => getSelectedProduct(products, selectedFilter),
+    [products, selectedFilter],
   );
 
   const chartData = useMemo(
@@ -168,23 +261,26 @@ export default function AnalyticsPage() {
   const recommendedReorderQuantity =
     getRecommendedReorderQuantity(selectedProduct);
 
-  const isCritical = selectedProduct.currentStock <= selectedProduct.threshold;
-  const isWarning =
-    !isCritical && daysUntilThreshold <= selectedProduct.reorderLeadDays;
+  const inventoryState = getInventoryState(selectedProduct);
 
-  const statusText = isCritical
-    ? "Critical"
-    : isWarning
-      ? "At risk"
-      : "Healthy";
-  const statusClassName = isCritical
-    ? "analytics-status analytics-status-critical"
-    : isWarning
-      ? "analytics-status analytics-status-warning"
-      : "analytics-status analytics-status-healthy";
+  const statusText =
+    inventoryState === "critical"
+      ? "Critical"
+      : inventoryState === "warning"
+        ? "At risk"
+        : "Healthy";
+
+  const statusClassName =
+    inventoryState === "critical"
+      ? "analytics-status analytics-status-critical"
+      : inventoryState === "warning"
+        ? "analytics-status analytics-status-warning"
+        : "analytics-status analytics-status-healthy";
 
   const maxChartValue = Math.max(
-    ...selectedProduct.sales.map((item) => item.unitsSold),
+    ...chartData.map((item) =>
+      Math.max(item.actualStock ?? 0, item.projectedStock ?? 0),
+    ),
     selectedProduct.threshold,
   );
 
@@ -225,7 +321,7 @@ export default function AnalyticsPage() {
                     setSelectedFilter(e.target.value as AnalyticsFilterValue)
                   }
                 >
-                  {MOCK_PRODUCTS.map((product) => (
+                  {products.map((product) => (
                     <option key={product.id} value={product.id}>
                       {product.name}
                     </option>
@@ -287,23 +383,27 @@ export default function AnalyticsPage() {
                     y={selectedProduct.threshold}
                     stroke="#ef4444"
                     strokeDasharray="6 6"
+                    label={{
+                      value: `Threshold (${selectedProduct.threshold})`,
+                      position: "insideTopRight",
+                    }}
                   />
                   <Line
                     type="monotone"
-                    dataKey="actualSales"
+                    dataKey="actualStock"
                     stroke="var(--primary)"
                     strokeWidth={3}
-                    name="Actual sales"
+                    name="Historical stock"
                     dot={false}
                     connectNulls={false}
                   />
                   <Line
                     type="monotone"
-                    dataKey="projectedSales"
+                    dataKey="projectedStock"
                     stroke="#22c55e"
                     strokeWidth={3}
                     strokeDasharray="6 6"
-                    name="Projected sales"
+                    name="Projected stock"
                     dot={false}
                     connectNulls
                   />
