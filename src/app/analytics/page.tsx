@@ -72,22 +72,12 @@ function getTopSeller(products: Product[]) {
   )[0];
 }
 
-function getMostAtRisk(products: Product[]) {
-  return [...products].sort(
-    (a, b) => getDaysUntilThreshold(a) - getDaysUntilThreshold(b),
-  )[0];
-}
-
 function getSelectedProduct(
   products: Product[],
   filterValue: AnalyticsFilterValue,
 ) {
   if (filterValue === "top-seller") {
     return getTopSeller(products);
-  }
-
-  if (filterValue === "most-at-risk") {
-    return getMostAtRisk(products);
   }
 
   return products.find((product) => product.id === filterValue) ?? products[0];
@@ -115,7 +105,7 @@ function getDaysUntilStockout(product: Product) {
   const firstStockoutDay = projectedStocks.findIndex((stock) => stock <= 0);
 
   if (firstStockoutDay === -1) {
-    return "7+";
+    return 7 - firstStockoutDay;
   }
 
   return firstStockoutDay + 1;
@@ -327,7 +317,6 @@ export default function AnalyticsPage() {
                     </option>
                   ))}
                   <option value="top-seller">Top Seller</option>
-                  <option value="most-at-risk">Most At-Risk Product</option>
                 </select>
 
                 <span className={statusClassName}>{statusText}</span>
