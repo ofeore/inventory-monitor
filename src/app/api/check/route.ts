@@ -1,8 +1,4 @@
-type Product = {
-  id: string;
-  name: string;
-  stock: number;
-};
+import type { Product, Alert } from "@/types";
 
 type Thresholds = Record<string, number>;
 
@@ -12,7 +8,8 @@ export async function POST(request: Request) {
   if (
     !body ||
     !Array.isArray(body.products) ||
-    typeof body.thresholds !== "object"
+    typeof body.thresholds !== "object" ||
+    body.thresholds === null
   ) {
     return new Response("Invalid request body", { status: 400 });
   }
@@ -20,22 +17,22 @@ export async function POST(request: Request) {
   const products: Product[] = body.products;
   const thresholds: Thresholds = body.thresholds;
 
-  const alerts = products
+  const alerts: Alert[] = products
     .map((product) => {
-      const threshold = thresholds[product.id] ?? 0;
+      const threshold = thresholds[product.id] ?? product.threshold;
 
-      if (product.stock < threshold) {
+      if (product.currentStock < threshold) {
         return {
           productId: product.id,
           name: product.name,
-          stock: product.stock,
-          threshold: threshold,
+          currentStock: product.currentStock,
+          threshold,
         };
       }
 
       return null;
     })
-    .filter(Boolean);
+    .filter((alert): alert is Alert => alert !== null);
 
   return Response.json({ alerts });
 }

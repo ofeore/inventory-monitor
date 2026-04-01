@@ -1,9 +1,4 @@
-type Alert = {
-  productId: string;
-  name: string;
-  stock: number;
-  threshold: number;
-};
+import type { Alert } from "@/types";
 
 type AlertsListProps = {
   alerts: Alert[];
@@ -11,14 +6,24 @@ type AlertsListProps = {
 
 export function AlertsList({ alerts }: AlertsListProps) {
   if (alerts.length === 0) {
-    return <p>No alerts yet. Click “Run Inventory Check”.</p>;
+    return (
+      <p className="home-empty-state">
+        No alerts yet. Click “Run Inventory Check”.
+      </p>
+    );
   }
 
   return (
-    <ul>
-      {alerts.map((a) => (
-        <li key={a.productId}>
-          ⚠️ {a.name} — stock {a.stock} (threshold {a.threshold})
+    <ul className="alertsList">
+      {alerts.map((alert) => (
+        <li key={alert.productId} className="alertItem">
+          <div>
+            <strong>{alert.name}</strong>
+            <p>
+              Current stock: {alert.currentStock} · Threshold: {alert.threshold}
+            </p>
+          </div>
+          <span className="alertBadge">Action needed</span>
         </li>
       ))}
     </ul>

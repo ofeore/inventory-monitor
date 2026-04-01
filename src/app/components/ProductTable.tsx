@@ -1,8 +1,4 @@
-type Product = {
-  id: string;
-  name: string;
-  stock: number;
-};
+import type { Product } from "@/types";
 
 type ProductTableProps = {
   products: Product[];
@@ -16,36 +12,40 @@ export function ProductTable({
   onThresholdChange,
 }: ProductTableProps) {
   return (
-    <table className="table">
+    <table className="dataTable">
       <thead>
         <tr>
-          <th className="th">Product</th>
-          <th className="th">Stock</th>
-          <th className="th">Threshold</th>
-          <th className="th">Status</th>
+          <th className="tableHeaderCell">Product</th>
+          <th className="tableHeaderCell">Current Stock</th>
+          <th className="tableHeaderCell">Threshold</th>
+          <th className="tableHeaderCell">Status</th>
         </tr>
       </thead>
       <tbody>
-        {products.map((p) => {
-          const threshold = thresholds[p.id] ?? 0;
-          const isLow = p.stock < threshold;
+        {products.map((product) => {
+          const threshold = thresholds[product.id] ?? product.threshold;
+          const isLow = product.currentStock < threshold;
 
           return (
-            <tr key={p.id}>
-              <td className="td">{p.name}</td>
-              <td className="td">{p.stock}</td>
-              <td className="td">
+            <tr key={product.id}>
+              <td className="tableBodyCell">{product.name}</td>
+              <td className="tableBodyCell">{product.currentStock}</td>
+              <td className="tableBodyCell">
                 <input
-                  className="input"
+                  className="numberInput"
+                  type="number"
+                  min="0"
                   value={threshold}
-                  onChange={(e) => onThresholdChange(p.id, e.target.value)}
+                  onChange={(e) =>
+                    onThresholdChange(product.id, e.target.value)
+                  }
                 />
               </td>
-              <td className="td">
+              <td className="tableBodyCell">
                 {isLow ? (
-                  <span className="badgeLow">⚠️ Low</span>
+                  <span className="statusLow">Below threshold</span>
                 ) : (
-                  <span className="badgeOk">✅ OK</span>
+                  <span className="statusOk">Healthy</span>
                 )}
               </td>
             </tr>

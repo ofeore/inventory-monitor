@@ -22,8 +22,8 @@ export type Alert = {
 
 export type ChartDataPoint = {
   date: string;
-  actualSales: number | null;
-  projectedSales: number | null;
+  actualStock: number | null;
+  projectedStock: number | null;
 };
 
 export type AnalyticsFilterValue = string | "top-seller" | "most-at-risk";

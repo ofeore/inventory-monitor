@@ -74,3 +74,5 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
   },
 ];
+
+export const THRESHOLDS_STORAGE_KEY = "inventory-thresholds";
