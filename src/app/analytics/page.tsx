@@ -418,7 +418,7 @@ export default function AnalyticsPage() {
               <div className="analytics-stat-top">
                 <PoundSterling size={18} className="analytics-stat-icon" />
                 <span className="analytics-stat-label">
-                  Expected revenue loss
+                  Potential revenue loss
                 </span>
               </div>
               <h3 className="analytics-stat-value">£{expectedRevenueLoss}</h3>
