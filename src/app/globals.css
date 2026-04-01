@@ -20,19 +20,18 @@
 :root[data-theme="dark"] {
   --background: #0b1220;
   --text: #e5e7eb;
-  --mutedText: #b6c2d1;
+  --mutedText: #94a3b8;
 
   --cardBackground: #0f172a;
-  --border: #243244;
+  --border: #1e293b;
 
-  --primary: #60a5fa;
-  --primaryHover: #3b82f6;
-  --primaryText: #0b1220;
+  --primary: #3b82f6;
+  --primaryHover: #2563eb;
 
-  --dangerText: #fca5a5;
-  --successText: #86efac;
+  --iconDefault: #94a3b8;
+  --iconHover: #e5e7eb;
+  --iconActive: #3b82f6;
 
-  --inputBackground: #0b1220;
   --inputBorder: #334155;
 }
 
@@ -51,10 +50,57 @@ body {
     sans-serif;
 }
 
-.appContainer {
+.icon {
+  color: var(--mutedText);
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.icon:hover {
+  color: var(--text);
+}
+
+.icon.active {
+  color: var(--primary);
+}
+
+.app-container {
   max-width: 920px;
   margin: 0 auto;
   padding: 28px 18px 60px;
+}
+
+.charts-container {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 16px;
+}
+
+.bottom-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.chart-card {
+  background: var(--cardBackground);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.chart-title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .bottom-row {
+    flex-direction: column;
+  }
 }
 
 .headerRow {
