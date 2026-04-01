@@ -36,7 +36,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [connectedShop, setConnectedShop] = useState<string | null>(null);
 
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
