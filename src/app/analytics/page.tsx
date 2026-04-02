@@ -105,7 +105,7 @@ function getDaysUntilStockout(product: Product) {
   const firstStockoutDay = projectedStocks.findIndex((stock) => stock <= 0);
 
   if (firstStockoutDay === -1) {
-    return 7 - firstStockoutDay;
+    return "7+";
   }
 
   return firstStockoutDay + 1;
@@ -339,7 +339,7 @@ export default function AnalyticsPage() {
               <div className="analytics-mini-metric">
                 <span className="analytics-mini-label">Days to stockout</span>
                 <strong>
-                  {daysUntilStockout === Infinity ? "—" : daysUntilStockout}
+                  {daysUntilStockout === Infinity ? "7+" : daysUntilStockout}
                 </strong>
               </div>
             </div>
