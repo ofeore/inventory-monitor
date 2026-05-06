@@ -32,7 +32,9 @@ This project demonstrates:
 
 ### Home page
 
-![Homepage](./assets/Homepage.png)
+![Dashboard](./assets/dashboard.png)
+
+![Analytics](./assets/analytics.png)
 
 ## Features
 
