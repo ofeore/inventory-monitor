@@ -34,6 +34,8 @@ This project demonstrates:
 
 ![Dashboard](./assets/dashboard.png)
 
+### Analytics Page
+
 ![Analytics](./assets/analytics.png)
 
 ## Features
