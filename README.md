@@ -32,7 +32,7 @@ This project demonstrates:
 
 ### Home page
 
-![Homepage](./assets/dashboard.png)
+![Homepage](./assets/homepage.png)
 
 ### Analytics Page
 
