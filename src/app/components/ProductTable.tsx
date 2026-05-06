@@ -43,7 +43,7 @@ export function ProductTable({
               </td>
               <td className="tableBodyCell">
                 {isLow ? (
-                  <span className="statusLow">Below threshold</span>
+                  <span className="statusLow">Critical</span>
                 ) : (
                   <span className="statusOk">Healthy</span>
                 )}
