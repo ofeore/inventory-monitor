@@ -1,4 +1,4 @@
-# Inventory Monitor (MVP)
+# Inventory Monitor
 
 A lightweight Shopify inventory monitoring tool built with Next.js (App Router) and TypeScript.
 
@@ -44,7 +44,7 @@ This project demonstrates:
 
 - Store access tokens server-side in Supabase
 
-- Mock product inventory dashboard
+- Mock product inventory dashboard with anayltics page
 
 - Threshold-based stock alerts
 
@@ -114,9 +114,7 @@ This version focuses on:
 
 - Fetch real product inventory from Shopify API
 
-- Poll inventory periodically
-
-- Email notifications when stock falls below threshold
+- Automatic threshold alerts via email notification
 
 - Observability / logging layer
 
